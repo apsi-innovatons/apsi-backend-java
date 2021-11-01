@@ -5,7 +5,6 @@ plugins {
 }
 
 group = 'pl.innowacja'
-version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -34,11 +33,3 @@ test {
     useJUnitPlatform()
 }
 
-jar {
-    archiveName 'app.jar'
-    manifest {
-        attributes(
-                'Main-Class': 'pl.innowacja.BackendApplication'
-        )
-    }
-}
