@@ -38,7 +38,7 @@ jar {
     archiveName 'app.jar'
     manifest {
         attributes(
-                'Main-Class': 'com.apsi.backend.java'
+                'Main-Class': 'pl.innowacja.BackendApplication'
         )
     }
 }
