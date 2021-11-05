@@ -4,3 +4,17 @@ server:
 spring:
   application:
     name: apsi-backend-java
+  datasource:
+    username: apsidbadmin
+    password: k4p4sFUrZkwNpx8
+    url: jdbc:sqlserver://apsi.database.windows.net:1433;databaseName=apsi-database
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
