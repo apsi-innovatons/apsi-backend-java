@@ -1,13 +1,12 @@
 package pl.innowacja.entities;
 
-import java.sql.Date;
+import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import lombok.Data;
+import java.sql.Date;
 
 @Entity
 @Data

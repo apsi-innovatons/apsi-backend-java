@@ -1,22 +1,18 @@
 package pl.innowacja.services;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
-import pl.innowacja.entities.CostEntity;
-import pl.innowacja.entities.SubjectEntity;
-import pl.innowacja.exception.NoResourceFoundException;
+import org.springframework.stereotype.Service;
 import pl.innowacja.entities.BenefitEntity;
+import pl.innowacja.entities.CostEntity;
 import pl.innowacja.entities.IdeaEntity;
+import pl.innowacja.exception.NoResourceFoundException;
 import pl.innowacja.repositories.BenefitRepository;
 import pl.innowacja.repositories.CostRepository;
 import pl.innowacja.repositories.IdeaRepository;
-import pl.innowacja.repositories.ReviewRepository;
 import pl.innowacja.repositories.SubjectRepository;
-import pl.innowacja.repositories.UserRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

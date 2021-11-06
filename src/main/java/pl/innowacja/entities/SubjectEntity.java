@@ -1,13 +1,12 @@
 package pl.innowacja.entities;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Data;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import lombok.Data;
 
 @Entity
 @Data

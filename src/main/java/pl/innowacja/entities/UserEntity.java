@@ -1,17 +1,20 @@
 package pl.innowacja.entities;
 
+import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import lombok.Data;
+import java.util.Collection;
 
 
 @Entity
 @Data
 @Table(name = "Users", schema = "dbo")
-public class UserEntity {
+public class UserEntity implements UserDetails {
 
   @Id
   @Column(name = "Id", nullable = false)
@@ -26,4 +29,29 @@ public class UserEntity {
   private Integer userRole;
   @Column(name = "Password")
   private String password;
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return null;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return false;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return false;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return false;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return false;
+  }
 }
