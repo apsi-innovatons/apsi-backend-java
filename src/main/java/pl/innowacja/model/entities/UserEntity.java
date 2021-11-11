@@ -1,13 +1,10 @@
-package pl.innowacja.entities;
+package pl.innowacja.model.entities;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Collection;
 
 
@@ -17,6 +14,7 @@ import java.util.Collection;
 public class UserEntity implements UserDetails {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id", nullable = false)
   private Integer id;
   @Column(name = "Username")

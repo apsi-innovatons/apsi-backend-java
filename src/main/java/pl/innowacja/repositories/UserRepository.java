@@ -2,7 +2,7 @@ package pl.innowacja.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import pl.innowacja.entities.UserEntity;
+import pl.innowacja.model.entities.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
   default UserEntity findByUsername(String username) {

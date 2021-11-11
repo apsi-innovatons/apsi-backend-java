@@ -1,12 +1,9 @@
-package pl.innowacja.entities;
+package pl.innowacja.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -14,6 +11,7 @@ import javax.persistence.Table;
 public class SubjectEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id", nullable = false)
   private Integer id;
   @JsonValue

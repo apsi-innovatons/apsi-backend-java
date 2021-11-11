@@ -17,8 +17,14 @@ spring:
     filter:
       order: 10
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.security: DEBUG
+#    org.springframework.security: DEBUG

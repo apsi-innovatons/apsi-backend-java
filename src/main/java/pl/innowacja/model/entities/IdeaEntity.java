@@ -1,16 +1,21 @@
-package pl.innowacja.entities;
+package pl.innowacja.model.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Ideas", schema = "dbo")
 public class IdeaEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id", nullable = false)
   private Integer id;
   @Column(name = "Title")
@@ -29,7 +34,7 @@ public class IdeaEntity {
   private Boolean anonymous;
   @Column(name = "AuthorId")
   private Integer authorId;
-  @ManyToOne
-  @JoinColumn(name = "SubjectId", referencedColumnName = "Id")
-  private SubjectEntity subject;
+  @Column(name = "SubjectId")
+  private Integer subjectId;
+
 }

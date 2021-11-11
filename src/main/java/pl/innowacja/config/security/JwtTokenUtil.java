@@ -19,7 +19,7 @@ public class JwtTokenUtil {
   private final UserRepository userRepository;
 
   public String getUserId(String token) {
-    Claims claims = Jwts.parser()
+    var claims = Jwts.parser()
         .setSigningKey(jwtSecret)
         .parseClaimsJws(token)
         .getBody();
@@ -28,7 +28,7 @@ public class JwtTokenUtil {
   }
 
   public String getUsername(String token) {
-    Claims claims = Jwts.parser()
+    var claims = Jwts.parser()
         .setSigningKey(jwtSecret)
         .parseClaimsJws(token)
         .getBody();
@@ -41,7 +41,7 @@ public class JwtTokenUtil {
   }
 
   public Date getExpirationDate(String token) {
-    Claims claims = Jwts.parser()
+    var claims = Jwts.parser()
         .setSigningKey(jwtSecret)
         .parseClaimsJws(token)
         .getBody();

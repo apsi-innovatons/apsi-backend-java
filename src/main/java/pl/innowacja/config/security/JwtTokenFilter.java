@@ -14,7 +14,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 import static org.apache.logging.log4j.util.Strings.isEmpty;
 
@@ -43,9 +42,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     var userDetails = userRepository.findByUsername(jwtTokenUtil.getUsername(token));
 
     var authentication = new UsernamePasswordAuthenticationToken(
-        userDetails, null,
-        userDetails == null ?
-            List.of() : userDetails.getAuthorities()
+        userDetails, userDetails.getId(), userDetails.getAuthorities()
     );
 
     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
