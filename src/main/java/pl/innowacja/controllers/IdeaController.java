@@ -1,21 +1,19 @@
 package pl.innowacja.controllers;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import pl.innowacja.model.dtos.IdeaDto;
 import pl.innowacja.model.entities.IdeaEntity;
 import pl.innowacja.services.IdeaService;
 
-import java.io.File;
 import java.util.List;
 
 @RestController
 @RequestMapping("/ideas")
 @CrossOrigin
+@Api(tags = {"Innowacja API"})
 @RequiredArgsConstructor
 public class IdeaController {
 

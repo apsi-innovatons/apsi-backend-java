@@ -5,6 +5,9 @@ import pl.innowacja.model.entities.IdeaEntity;
 import pl.innowacja.model.enums.IdeaStatus;
 
 import java.sql.Date;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class IdeaMapper {
   public static IdeaEntity map(IdeaDto ideaDto) {
@@ -18,7 +21,8 @@ public class IdeaMapper {
         ideaDto.getBlocked(),
         ideaDto.getAnonymous(),
         ideaDto.getAuthorId(),
-        ideaDto.getSubjectId()
+        ideaDto.getSubjectId(),
+        mapKeywords(ideaDto.getKeywords())
     );
   }
 
@@ -34,8 +38,19 @@ public class IdeaMapper {
         ideaEntity.getAuthorId(),
         ideaEntity.getAnonymous(),
         ideaEntity.getBlocked(),
+        mapKeywords(ideaEntity.getKeywords()),
         null,
         null
     );
+  }
+
+  private static String mapKeywords(List<String> keywords) {
+    var sb = new StringBuilder();
+    keywords.forEach(keyword -> sb.append(keyword).append(','));
+    return sb.toString();
+  }
+
+  private static List<String> mapKeywords(String keywords) {
+    return Arrays.stream(keywords.split(",")).collect(Collectors.toList());
   }
 }

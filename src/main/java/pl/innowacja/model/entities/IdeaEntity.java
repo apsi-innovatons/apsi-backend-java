@@ -36,5 +36,7 @@ public class IdeaEntity {
   private Integer authorId;
   @Column(name = "SubjectId")
   private Integer subjectId;
+  @Column(name = "Keywords")
+  private String keywords;
 
 }

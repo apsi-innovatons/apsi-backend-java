@@ -1,5 +1,6 @@
 package pl.innowacja.controllers;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +18,13 @@ import java.util.List;
 @Slf4j
 @RestController
 @CrossOrigin
+@Api(tags = {"Innowacja API"})
 @RequiredArgsConstructor
 public class AttachmentController {
 
   private final AttachmentService attachmentService;
 
-  @PostMapping("/attachments/{id}")
+  @PostMapping("/ideas/{id}/attachments")
   @ApiOperation(value = "Save attachment for given ideaId")
   public Integer saveAttachment(@RequestParam("file") MultipartFile file, @PathVariable Integer id) {
     return attachmentService.saveAttachment(file, id);

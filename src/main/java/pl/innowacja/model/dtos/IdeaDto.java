@@ -22,6 +22,7 @@ public class IdeaDto {
   private Integer authorId;
   private Boolean anonymous;
   private Boolean blocked;
+  private List<String> keywords;
   private List<CostDto> costs;
   private List<BenefitDto> benefits;
 }
