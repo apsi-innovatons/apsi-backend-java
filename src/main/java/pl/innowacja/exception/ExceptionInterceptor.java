@@ -15,4 +15,9 @@ public class ExceptionInterceptor implements HandlerInterceptor {
   protected ResponseEntity<String> handleClientError(NoResourceFoundException e) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
   }
+
+  @ExceptionHandler({IdeaServiceException.class})
+  protected ResponseEntity<String> handleServiceException(IdeaServiceException e) {
+    return ResponseEntity.status(e.getHttpStatus()).body(e.getMessage());
+  }
 }

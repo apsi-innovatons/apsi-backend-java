@@ -28,3 +28,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 #    org.springframework.security: DEBUG
+
+springdoc:
+  swagger-ui:
+    displayOperationSummary: true

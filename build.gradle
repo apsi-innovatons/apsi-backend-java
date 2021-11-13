@@ -27,7 +27,8 @@ dependencies {
       'com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre11',
       'io.springfox:springfox-swagger2:2.9.2',
       'io.springfox:springfox-swagger-ui:2.9.2',
-      'ma.glasnost.orika:orika-core:1.5.4'
+      'ma.glasnost.orika:orika-core:1.5.4',
+      'commons-fileupload:commons-fileupload:1.4'
   )
   compileOnly 'org.projectlombok:lombok'
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
