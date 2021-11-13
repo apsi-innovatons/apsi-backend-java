@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/ideas")
+@CrossOrigin
 @RequiredArgsConstructor
 public class IdeaController {
 

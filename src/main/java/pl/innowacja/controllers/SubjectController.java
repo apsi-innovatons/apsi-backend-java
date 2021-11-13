@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/subjects")
+@CrossOrigin
 @RequiredArgsConstructor
 public class SubjectController {
 
