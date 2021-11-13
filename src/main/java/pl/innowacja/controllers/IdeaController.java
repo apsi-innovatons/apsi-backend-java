@@ -45,7 +45,7 @@ public class IdeaController {
 
   @GetMapping("/by-subject")
   @ApiOperation(value = "Get all ideas with given subject")
-  public List<IdeaEntity> getIdeasBySubject(@RequestParam Integer subjectId) {
+  public List<IdeaDto> getIdeasBySubject(@RequestParam Integer subjectId) {
     return ideaService.getIdeasForSubject(subjectId);
   }
 

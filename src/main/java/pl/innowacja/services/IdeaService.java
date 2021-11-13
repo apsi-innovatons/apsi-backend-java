@@ -57,9 +57,10 @@ public class IdeaService {
     return saveEntity(ideaDto).getId().equals(ideaDto.getId());
   }
 
-  public List<IdeaEntity> getIdeasForSubject(Integer subjectId) {
+  public List<IdeaDto> getIdeasForSubject(Integer subjectId) {
     return ideaRepository.findAll().stream()
         .filter(idea -> idea.getSubjectId().equals(subjectId))
+        .map(IdeaMapper::map)
         .collect(Collectors.toList());
   }
 
