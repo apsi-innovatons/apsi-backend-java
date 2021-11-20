@@ -5,6 +5,7 @@ import pl.innowacja.model.entities.IdeaEntity;
 import pl.innowacja.model.enums.IdeaStatus;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,12 +46,18 @@ public class IdeaMapper {
   }
 
   private static String mapKeywords(List<String> keywords) {
+    if (keywords == null) {
+      return null;
+    }
     var sb = new StringBuilder();
     keywords.forEach(keyword -> sb.append(keyword).append(','));
     return sb.toString();
   }
 
   private static List<String> mapKeywords(String keywords) {
+    if (keywords == null) {
+      return new ArrayList<>();
+    }
     return Arrays.stream(keywords.split(",")).collect(Collectors.toList());
   }
 }

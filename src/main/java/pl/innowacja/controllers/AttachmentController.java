@@ -32,13 +32,13 @@ public class AttachmentController {
 
   @GetMapping("/ideas/{id}/attachments")
   @ApiOperation(value = "Get list of attachment id's belonging to given idea.")
-  public List<Integer> getAttachmentIds(@PathVariable Integer id) {
+  public List<Integer> getAttachmentIdsByIdeaId(@PathVariable Integer id) {
     return attachmentService.getAttachmentIds(id);
   }
 
   @GetMapping(path = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-  public void downloadAttachment(HttpServletResponse response,
-                                 @PathVariable Integer id) {
+  public void downloadAttachmentById(HttpServletResponse response,
+                                     @PathVariable Integer id) {
     var attachmentEntity = attachmentService.getAttachment(id);
     response.addHeader("Content-Disposition", "attachment; filename=" + attachmentEntity.getFileName());
     try {

@@ -20,19 +20,19 @@ public class SubjectController {
 
   @GetMapping
   @ApiOperation(value = "Get all subjects")
-  public List<SubjectDto> getAll() {
+  public List<SubjectDto> getAllSubjects() {
     return subjectService.getAll();
   }
 
   @GetMapping("/{id}")
   @ApiOperation(value = "Get subject with given id")
-  public SubjectDto getById(@PathVariable Integer id) {
+  public SubjectDto getSubjectById(@PathVariable Integer id) {
     return subjectService.getById(id);
   }
 
   @PostMapping
   @ApiOperation(value = "Save subject in database, returns id of saved entity")
-  public Integer save(SubjectDto subjectDto) {
+  public Integer saveSubject(SubjectDto subjectDto) {
     return subjectService.saveSubject(subjectDto);
   }
 }

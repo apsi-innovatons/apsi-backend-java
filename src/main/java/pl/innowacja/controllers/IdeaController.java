@@ -39,13 +39,13 @@ public class IdeaController {
 
   @DeleteMapping("/{id}")
   @ApiOperation(value = "Delete Idea with given id (also deletes all of its attachments, costs and benefits)")
-  public void deleteIdea(@PathVariable Integer id) {
+  public void deleteIdeaById(@PathVariable Integer id) {
     ideaService.deleteIdea(id);
   }
 
   @GetMapping("/by-subject")
   @ApiOperation(value = "Get all ideas with given subject")
-  public List<IdeaDto> getIdeasBySubject(@RequestParam Integer subjectId) {
+  public List<IdeaDto> getIdeasBySubjectId(@RequestParam Integer subjectId) {
     return ideaService.getIdeasForSubject(subjectId);
   }
 
