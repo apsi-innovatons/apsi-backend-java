@@ -20,4 +20,9 @@ public class ExceptionInterceptor implements HandlerInterceptor {
   protected ResponseEntity<String> handleServiceException(IdeaServiceException e) {
     return ResponseEntity.status(e.getHttpStatus()).body(e.getMessage());
   }
+
+  @ExceptionHandler({SecurityException.class})
+  protected ResponseEntity<String> handleSecurityException(SecurityException e) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+  }
 }

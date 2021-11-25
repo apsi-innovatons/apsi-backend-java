@@ -5,4 +5,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class NoResourceFoundException extends RuntimeException {
+  public NoResourceFoundException() {
+  }
+
+  public NoResourceFoundException(String message) {
+    super(message);
+  }
 }

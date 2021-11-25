@@ -24,6 +24,7 @@ import pl.innowacja.repositories.IdeaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,17 +45,14 @@ public class IdeaService {
   }
 
   public Integer saveIdea(IdeaDto ideaDto) {
-    var authentication = SecurityContextHolder.getContext().getAuthentication();
-    var userId = (int) authentication.getCredentials();
-    ideaDto.setAuthorId(userId);
+    ideaDto.setAuthorId(getCurrentUserId());
     ideaDto.setDate(LocalDate.now());
-
     return saveEntity(ideaDto).getId();
   }
 
-  public Boolean update(IdeaDto ideaDto) {
+  public void update(IdeaDto ideaDto) {
     validateUpdateDto(ideaDto);
-    return saveEntity(ideaDto).getId().equals(ideaDto.getId());
+    saveEntity(ideaDto);
   }
 
   public List<IdeaDto> getIdeasForSubject(Integer subjectId) {
@@ -83,14 +81,16 @@ public class IdeaService {
   }
 
   private void validateUpdateDto(IdeaDto ideaDto) {
-    var authentication = SecurityContextHolder.getContext().getAuthentication();
-    var userId = (int) authentication.getCredentials();
-    if (ideaDto.getAuthorId() != userId) {
+    if (!Objects.equals(ideaDto.getAuthorId(), getCurrentUserId())) {
       throw new AuthorizationServiceException("AuthorId does not match userId from token.");
     }
 
     if (ideaDto.getId() == null) {
       throw new IdeaServiceException("Id can not be null.", HttpStatus.BAD_REQUEST);
+    }
+
+    if (ideaRepository.findById(ideaDto.getId()).isEmpty()) {
+      throw new NoResourceFoundException("Idea with given id does not exist.");
     }
   }
 
@@ -118,6 +118,9 @@ public class IdeaService {
   }
 
   public void deleteIdea(Integer id) {
+    if (ideaRepository.findById(id).isEmpty()) {
+      throw new NoResourceFoundException();
+    }
     var costIds = costRepository.findAll().stream()
         .filter(cost -> cost.getIdeaId().equals(id))
         .map(CostEntity::getId)
@@ -135,7 +138,11 @@ public class IdeaService {
         .map(AttachmentEntity::getId)
         .collect(Collectors.toList());
     attachmentRepository.deleteAllById(attachmentIds);
-
     ideaRepository.deleteById(id);
+  }
+
+  private Integer getCurrentUserId() {
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    return (int) authentication.getCredentials();
   }
 }

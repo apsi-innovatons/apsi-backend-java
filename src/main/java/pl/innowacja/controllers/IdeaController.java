@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.innowacja.model.dtos.IdeaDto;
-import pl.innowacja.model.entities.IdeaEntity;
 import pl.innowacja.services.IdeaService;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/ideas")
 @CrossOrigin
-@Api(tags = {"Innowacja API"})
+@Api(tags = {"backendApi"})
 @RequiredArgsConstructor
 public class IdeaController {
 
@@ -32,9 +31,9 @@ public class IdeaController {
   }
 
   @PutMapping
-  @ApiOperation(value = "Update Idea in database, returns true if updated or false if saved new entity")
-  public Boolean updateIdea(@RequestBody IdeaDto ideaDto) {
-    return ideaService.update(ideaDto);
+  @ApiOperation(value = "Update existing Idea in database.")
+  public void updateIdea(@RequestBody IdeaDto ideaDto) {
+    ideaService.update(ideaDto);
   }
 
   @DeleteMapping("/{id}")

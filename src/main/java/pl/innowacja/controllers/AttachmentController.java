@@ -18,22 +18,22 @@ import java.util.List;
 @Slf4j
 @RestController
 @CrossOrigin
-@Api(tags = {"Innowacja API"})
+@Api(tags = {"backendApi"})
 @RequiredArgsConstructor
 public class AttachmentController {
 
   private final AttachmentService attachmentService;
 
-  @PostMapping("/ideas/{id}/attachments")
+  @PostMapping("/ideas/{ideaId}/attachments")
   @ApiOperation(value = "Save attachment for given ideaId")
-  public Integer saveAttachment(@RequestParam("file") MultipartFile file, @PathVariable Integer id) {
-    return attachmentService.saveAttachment(file, id);
+  public Integer saveAttachment(@RequestParam("file") MultipartFile file, @PathVariable Integer ideaId) {
+    return attachmentService.saveAttachment(file, ideaId);
   }
 
-  @GetMapping("/ideas/{id}/attachments")
+  @GetMapping("/ideas/{ideaId}/attachments")
   @ApiOperation(value = "Get list of attachment id's belonging to given idea.")
-  public List<Integer> getAttachmentIdsByIdeaId(@PathVariable Integer id) {
-    return attachmentService.getAttachmentIds(id);
+  public List<Integer> getAttachmentIdsByIdeaId(@PathVariable Integer ideaId) {
+    return attachmentService.getAttachmentIds(ideaId);
   }
 
   @GetMapping(path = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/subjects")
 @CrossOrigin
-@Api(tags = {"Innowacja API"})
+@Api(tags = {"backendApi"})
 @RequiredArgsConstructor
 public class SubjectController {
 
