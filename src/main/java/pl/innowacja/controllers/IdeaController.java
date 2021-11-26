@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.innowacja.model.dtos.IdeaDto;
+import pl.innowacja.model.dtos.RatingSettingDto;
+import pl.innowacja.model.requests.RatingSettingCreateRequest;
 import pl.innowacja.services.IdeaService;
 
 import java.util.List;
@@ -52,5 +54,27 @@ public class IdeaController {
   @ApiOperation(value = "Get idea with given id")
   public IdeaDto getIdeaById(@PathVariable Integer id) {
     return ideaService.getById(id);
+  }
+
+  @PostMapping("/{ideaId}/rating-settings")
+  public void saveRatingSatingsByIdeaId(@PathVariable Integer ideaId,
+                                        @RequestBody List<RatingSettingCreateRequest> ratingSettingCreateRequests) {
+    ideaService.saveRatingSettingsByIdeaId(ideaId, ratingSettingCreateRequests);
+  }
+
+  @GetMapping("/{ideaId}/rating-settings")
+  public List<RatingSettingDto> getRatingSettingsByIdeaId(@PathVariable Integer ideaId) {
+    return ideaService.getRatingSettingsByIdeaId(ideaId);
+  }
+
+  @PutMapping("/{ideaId}/rating-settings")
+  public void updateExistingRatingSettingsByIdeaId(@PathVariable Integer ideaId,
+                                                   @RequestBody List<RatingSettingDto> newRatingSettings) {
+    ideaService.updateExistingRatingSettingsByIdeaId(ideaId, newRatingSettings);
+  }
+
+  @DeleteMapping("/{ideaId}/rating-settings")
+  public void deleteRatingSettingsByIdeaId(@PathVariable Integer ideaId) {
+    ideaService.deleteRatingSettingsByIdeaId(ideaId);
   }
 }

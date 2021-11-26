@@ -6,13 +6,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GenericMapper {
+
   private final MapperFacade mapper;
 
   public GenericMapper() {
     var mapperFactory = new DefaultMapperFactory.Builder().build();
     var converterFactory = mapperFactory.getConverterFactory();
     converterFactory.registerConverter(new UserRoleMapper());
-    //TODO add status as well
+    converterFactory.registerConverter(new IdeaStatusMapper());
     this.mapper = mapperFactory.getMapperFacade();
   }
 

@@ -11,16 +11,12 @@ import pl.innowacja.exception.NoResourceFoundException;
 import pl.innowacja.model.dtos.BenefitDto;
 import pl.innowacja.model.dtos.CostDto;
 import pl.innowacja.model.dtos.IdeaDto;
-import pl.innowacja.model.entities.AttachmentEntity;
-import pl.innowacja.model.entities.BenefitEntity;
-import pl.innowacja.model.entities.CostEntity;
-import pl.innowacja.model.entities.IdeaEntity;
+import pl.innowacja.model.dtos.RatingSettingDto;
+import pl.innowacja.model.entities.*;
 import pl.innowacja.model.mapper.GenericMapper;
 import pl.innowacja.model.mapper.IdeaMapper;
-import pl.innowacja.repositories.AttachmentRepository;
-import pl.innowacja.repositories.BenefitRepository;
-import pl.innowacja.repositories.CostRepository;
-import pl.innowacja.repositories.IdeaRepository;
+import pl.innowacja.model.requests.RatingSettingCreateRequest;
+import pl.innowacja.repositories.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,6 +32,7 @@ public class IdeaService {
   private final BenefitRepository benefitRepository;
   private final CostRepository costRepository;
   private final AttachmentRepository attachmentRepository;
+  private final RatingSettingRepository ratingSettingRepository;
   private final GenericMapper genericMapper;
 
   public List<IdeaDto> getAll() {
@@ -89,9 +86,7 @@ public class IdeaService {
       throw new IdeaServiceException("Id can not be null.", HttpStatus.BAD_REQUEST);
     }
 
-    if (ideaRepository.findById(ideaDto.getId()).isEmpty()) {
-      throw new NoResourceFoundException("Idea with given id does not exist.");
-    }
+    assertIdeaExistence(ideaDto.getId());
   }
 
   private IdeaEntity saveEntity(IdeaDto ideaDto) {
@@ -139,6 +134,48 @@ public class IdeaService {
         .collect(Collectors.toList());
     attachmentRepository.deleteAllById(attachmentIds);
     ideaRepository.deleteById(id);
+  }
+
+  public void saveRatingSettingsByIdeaId(Integer ideaId, List<RatingSettingCreateRequest> ratingSettingCreateRequests) {
+    var ratingSettingEntities = ratingSettingCreateRequests.stream()
+        .map(ratingSettingCreateRequest -> genericMapper.map(ratingSettingCreateRequest, RatingSettingEntity.class))
+        .peek(ratingSettingEntity -> ratingSettingEntity.setIdeaId(ideaId))
+        .collect(Collectors.toUnmodifiableList());
+
+    ratingSettingRepository.saveAll(ratingSettingEntities);
+  }
+
+  public List<RatingSettingDto> getRatingSettingsByIdeaId(Integer ideaId) {
+    return ratingSettingRepository.findAll().stream()
+        .filter(ratingSettingEntity -> ideaId.equals(ratingSettingEntity.getIdeaId()))
+        .map(ratingSettingEntity -> genericMapper.map(ratingSettingEntity, RatingSettingDto.class))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public void updateExistingRatingSettingsByIdeaId(Integer ideaId, List<RatingSettingDto> newRatingSettings) {
+    deleteRatingSettingsByIdeaId(ideaId);
+
+    var newRatingSettingEntities = newRatingSettings.stream()
+        .map(ratingSettingDto -> genericMapper.map(ratingSettingDto, RatingSettingEntity.class))
+        .collect(Collectors.toUnmodifiableList());
+
+    ratingSettingRepository.saveAll(newRatingSettingEntities);
+  }
+
+  public void deleteRatingSettingsByIdeaId(Integer ideaId) {
+    assertIdeaExistence(ideaId);
+
+    var idsToDelete = getRatingSettingsByIdeaId(ideaId).stream()
+        .map(RatingSettingDto::getId)
+        .collect(Collectors.toUnmodifiableList());
+
+    ratingSettingRepository.deleteAllById(idsToDelete);
+  }
+
+  private void assertIdeaExistence(Integer ideaId) {
+    if (ideaRepository.findById(ideaId).isEmpty()) {
+      throw new NoResourceFoundException("Idea with given id does not exist");
+    }
   }
 
   private Integer getCurrentUserId() {
