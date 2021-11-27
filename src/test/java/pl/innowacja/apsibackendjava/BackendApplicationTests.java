@@ -8,5 +8,6 @@ class BackendApplicationTests {
 
   @Test
   void contextLoads() {
+    System.out.println("Witam");
   }
 }
