@@ -7,6 +7,7 @@ import pl.innowacja.model.dtos.ReviewDto;
 import pl.innowacja.model.requests.ReviewCreateRequest;
 import pl.innowacja.services.ReviewService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,7 +19,7 @@ public class ReviewController {
   private final ReviewService reviewService;
 
   @PostMapping("/ideas/{ideaId}/reviews")
-  public Integer saveReviewByIdeaId(@PathVariable Integer ideaId, @RequestBody ReviewCreateRequest reviewCreateRequest) {
+  public Integer saveReviewByIdeaId(@PathVariable Integer ideaId, @RequestBody @Valid ReviewCreateRequest reviewCreateRequest) {
     return reviewService.saveReview(ideaId, reviewCreateRequest);
   }
 

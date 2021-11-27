@@ -3,12 +3,14 @@ package pl.innowacja.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.innowacja.model.dtos.IdeaDto;
 import pl.innowacja.model.dtos.RatingSettingDto;
 import pl.innowacja.model.requests.RatingSettingCreateRequest;
 import pl.innowacja.services.IdeaService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -28,7 +30,7 @@ public class IdeaController {
 
   @PostMapping
   @ApiOperation(value = "Save Idea in database, returns id of saved entity")
-  public Integer saveIdea(@RequestBody IdeaDto ideaDto) {
+  public Integer saveIdea(@Valid @RequestBody IdeaDto ideaDto) {
     return ideaService.saveIdea(ideaDto);
   }
 
@@ -58,8 +60,8 @@ public class IdeaController {
 
   @PostMapping("/{ideaId}/rating-settings")
   public void saveRatingSatingsByIdeaId(@PathVariable Integer ideaId,
-                                        @RequestBody List<RatingSettingCreateRequest> ratingSettingCreateRequests) {
-    ideaService.saveRatingSettingsByIdeaId(ideaId, ratingSettingCreateRequests);
+                                        @RequestBody @Valid RatingSettingCreateRequest ratingSettingCreateRequest) {
+    ideaService.saveRatingSettingsByIdeaId(ideaId, ratingSettingCreateRequest);
   }
 
   @GetMapping("/{ideaId}/rating-settings")

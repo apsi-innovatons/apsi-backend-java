@@ -136,9 +136,9 @@ public class IdeaService {
     ideaRepository.deleteById(id);
   }
 
-  public void saveRatingSettingsByIdeaId(Integer ideaId, List<RatingSettingCreateRequest> ratingSettingCreateRequests) {
-    var ratingSettingEntities = ratingSettingCreateRequests.stream()
-        .map(ratingSettingCreateRequest -> genericMapper.map(ratingSettingCreateRequest, RatingSettingEntity.class))
+  public void saveRatingSettingsByIdeaId(Integer ideaId, RatingSettingCreateRequest ratingSettingCreateRequest) {
+    var ratingSettingEntities = ratingSettingCreateRequest.getRatingSettings().stream()
+        .map(ratingSetting -> genericMapper.map(ratingSetting, RatingSettingEntity.class))
         .peek(ratingSettingEntity -> ratingSettingEntity.setIdeaId(ideaId))
         .collect(Collectors.toUnmodifiableList());
 

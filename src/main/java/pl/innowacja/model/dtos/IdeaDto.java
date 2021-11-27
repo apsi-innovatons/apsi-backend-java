@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.innowacja.model.enums.IdeaStatus;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,9 +22,13 @@ public class IdeaDto {
   private LocalDate date;
   private Integer subjectId;
   private Integer authorId;
+  @NotNull
   private Boolean anonymous;
+  @NotNull
   private Boolean blocked;
   private List<String> keywords;
+  @Valid
   private List<CostDto> costs;
+  @Valid
   private List<BenefitDto> benefits;
 }
