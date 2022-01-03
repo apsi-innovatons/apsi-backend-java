@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,17 @@ public class ExceptionInterceptor implements HandlerInterceptor {
     ex.getBindingResult().getAllErrors().forEach((error) -> {
       var fieldName = ((FieldError) error).getField();
       var errorMessage = error.getDefaultMessage();
+      errors.put(fieldName, errorMessage);
+    });
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<Map<String, String>> handleValidationExceptions(ConstraintViolationException ex) {
+    var errors = new HashMap<String, String>();
+    ex.getConstraintViolations().forEach(violation -> {
+      var fieldName = violation.getPropertyPath().toString();
+      var errorMessage = violation.getMessage();
       errors.put(fieldName, errorMessage);
     });
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);

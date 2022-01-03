@@ -21,6 +21,7 @@ public class IdeaMapper {
         ideaDto.getDate() == null ? null : Date.valueOf(ideaDto.getDate()),
         ideaDto.getBlocked(),
         ideaDto.getAnonymous(),
+        ideaDto.getRating(),
         ideaDto.getAuthorId(),
         ideaDto.getSubjectId(),
         mapKeywords(ideaDto.getKeywords())
@@ -35,8 +36,9 @@ public class IdeaMapper {
         IdeaStatus.valueOf(ideaEntity.getStatus()),
         ideaEntity.getStatusDescription(),
         ideaEntity.getDate() == null ? null : ideaEntity.getDate().toLocalDate(),
-        ideaEntity.getSubjectId(),
+        ideaEntity.getRating(),
         ideaEntity.getAuthorId(),
+        ideaEntity.getSubjectId(),
         ideaEntity.getAnonymous(),
         ideaEntity.getBlocked(),
         mapKeywords(ideaEntity.getKeywords()),

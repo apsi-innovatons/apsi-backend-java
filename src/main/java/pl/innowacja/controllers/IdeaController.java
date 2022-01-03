@@ -11,6 +11,8 @@ import pl.innowacja.model.requests.RatingSettingCreateRequest;
 import pl.innowacja.services.IdeaService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -18,6 +20,7 @@ import java.util.List;
 @CrossOrigin
 @Api(tags = {"backendApi"})
 @RequiredArgsConstructor
+@Validated
 public class IdeaController {
 
   private final IdeaService ideaService;
@@ -78,5 +81,10 @@ public class IdeaController {
   @DeleteMapping("/{ideaId}/rating-settings")
   public void deleteRatingSettingsByIdeaId(@PathVariable Integer ideaId) {
     ideaService.deleteRatingSettingsByIdeaId(ideaId);
+  }
+
+  @PutMapping("/{ideaId}/rating")
+  public void rateIdeaById(@PathVariable Integer ideaId, @RequestParam @Min(0) @Max(5) Double rating) {
+    ideaService.rateIdeaById(ideaId, rating);
   }
 }

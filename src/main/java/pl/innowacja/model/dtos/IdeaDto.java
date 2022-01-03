@@ -20,6 +20,7 @@ public class IdeaDto {
   private IdeaStatus status;
   private String statusDescription;
   private LocalDate date;
+  private Double rating;
   private Integer subjectId;
   private Integer authorId;
   @NotNull

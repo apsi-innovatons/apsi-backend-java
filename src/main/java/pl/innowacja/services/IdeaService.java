@@ -13,6 +13,7 @@ import pl.innowacja.model.dtos.CostDto;
 import pl.innowacja.model.dtos.IdeaDto;
 import pl.innowacja.model.dtos.RatingSettingDto;
 import pl.innowacja.model.entities.*;
+import pl.innowacja.model.enums.UserRole;
 import pl.innowacja.model.mapper.GenericMapper;
 import pl.innowacja.model.mapper.IdeaMapper;
 import pl.innowacja.model.requests.RatingSettingCreateRequest;
@@ -34,6 +35,7 @@ public class IdeaService {
   private final AttachmentRepository attachmentRepository;
   private final RatingSettingRepository ratingSettingRepository;
   private final GenericMapper genericMapper;
+  private final RatingRepository ratingRepository;
 
   public List<IdeaDto> getAll() {
     return ideaRepository.findAll().stream()
@@ -170,6 +172,30 @@ public class IdeaService {
         .collect(Collectors.toUnmodifiableList());
 
     ratingSettingRepository.deleteAllById(idsToDelete);
+  }
+
+  public void rateIdeaById(Integer ideaId, Double rating) {
+    var ratingWeight = getRatingWeightForCurrentUser(ideaId);
+    var ratingEntity = new RatingEntity();
+    ratingEntity.setIdeaId(ideaId);
+    ratingEntity.setAuthorId(getCurrentUserId());
+    ratingEntity.setWeight(ratingWeight);
+    ratingEntity.setValue(rating);
+    ratingRepository.save(ratingEntity);
+  }
+
+  private Double getRatingWeightForCurrentUser(Integer ideaId) {
+    var currentUserRole = getCurrentUserRole(ideaId);
+    return getRatingSettingsByIdeaId(ideaId).stream()
+        .filter(setting -> currentUserRole.equals(setting.getUserRole()))
+        .findAny()
+        .map(RatingSettingDto::getWeight)
+        .orElseThrow(() -> new NoResourceFoundException("No rating setting for given user role."));
+  }
+
+  private UserRole getCurrentUserRole(Integer ideaId) {
+    var userEntity = ((UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    return UserRole.valueOf(userEntity.getUserRole());
   }
 
   private void assertIdeaExistence(Integer ideaId) {

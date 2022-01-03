@@ -32,10 +32,12 @@ public class IdeaEntity {
   private Boolean blocked;
   @Column(name = "Anonymous", nullable = false)
   private Boolean anonymous;
-  @Column(name = "AuthorId")
-  private Integer authorId;
+  @Column(name = "Rating", nullable = false)
+  private Double rating;
   @Column(name = "SubjectId")
   private Integer subjectId;
+  @Column(name = "AuthorId")
+  private Integer authorId;
   @Column(name = "Keywords")
   private String keywords;
 
