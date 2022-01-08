@@ -90,7 +90,17 @@ public class IdeaService {
     deleteCostsByIdeaId(ideaId);
     deleteBenefitsByIdeaId(ideaId);
     deleteAttachmentsByIdeaId(ideaId);
+    deleteRatingSettings(ideaId);
     ideaRepository.deleteById(ideaId);
+  }
+
+  private void deleteRatingSettings(Integer ideaId) {
+    var settingIdsToDelete = ratingSettingRepository.findAll().stream()
+        .filter(setting -> ideaId.equals(setting.getIdeaId()))
+        .map(RatingSettingEntity::getId)
+        .collect(Collectors.toUnmodifiableList());
+
+    ratingSettingRepository.deleteAllById(settingIdsToDelete);
   }
 
   public List<RatingSettingDto> getRatingSettingsByIdeaId(Integer ideaId) {

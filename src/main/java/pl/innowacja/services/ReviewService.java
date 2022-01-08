@@ -76,7 +76,7 @@ public class ReviewService {
   }
 
   public void updateReview(ReviewDto reviewDto) {
-    if (!Objects.equals(getCurrentUserId(), reviewDto.getAuthorId())) {
+    if (!Objects.equals(getCurrentUserId(), reviewDto.getAuthorId()) && getCurrentUserRole() != UserRole.Admin) {
       throw new SecurityException("Can not update review of another user.");
     }
 
