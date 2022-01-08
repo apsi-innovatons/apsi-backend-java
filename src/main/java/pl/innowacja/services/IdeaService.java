@@ -162,7 +162,7 @@ public class IdeaService {
   }
 
   private void validateUpdateDto(IdeaDto ideaDto) {
-    if (!Objects.equals(ideaDto.getAuthorId(), getCurrentUserId())) {
+    if (!Objects.equals(ideaDto.getAuthorId(), getCurrentUserId()) && getCurrentUserRole() != UserRole.Admin) {
       throw new AuthorizationServiceException("AuthorId does not match userId from token.");
     }
 
@@ -251,6 +251,11 @@ public class IdeaService {
     return Arrays.stream(UserRole.values())
         .map(userRole -> new AddRatingSettingsDto.RatingSetting(userRole, 1.0D))
         .collect(Collectors.toUnmodifiableList());
+  }
+
+  private UserRole getCurrentUserRole() {
+    var userEntity = ((UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    return UserRole.valueOf(userEntity.getUserRole());
   }
 
   private Integer getCurrentUserId() {
