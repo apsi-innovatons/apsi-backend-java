@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import pl.innowacja.exception.IdeaServiceException;
 import pl.innowacja.exception.NoResourceFoundException;
 import pl.innowacja.model.dtos.ReviewDto;
+import pl.innowacja.model.entities.IdeaEntity;
 import pl.innowacja.model.entities.RatingSettingEntity;
 import pl.innowacja.model.entities.ReviewEntity;
 import pl.innowacja.model.entities.UserEntity;
@@ -45,9 +46,9 @@ public class ReviewService {
     reviewEntity.setAuthorId(getCurrentUserId());
     reviewEntity.setIdeaId(ideaId);
 
+    var reviewId =  reviewRepository.save(reviewEntity).getId();
     updateIdeaRating(ideaId);
-
-    return reviewRepository.save(reviewEntity).getId();
+    return reviewId;
   }
 
   private boolean reviewOfCurrentUserAlreadyExists(Integer ideaId) {
@@ -97,7 +98,12 @@ public class ReviewService {
   }
 
   public Double getIdeaRating(Integer ideaId) {
-    return getNominator(ideaId) / getDenominator(ideaId);
+    var nominator = getNominator(ideaId);
+    var denominator = getDenominator(ideaId);
+    if (denominator != 0) {
+      return nominator / denominator;
+    }
+    return 0D;
   }
 
   private Double getNominator(Integer ideaId) {
