@@ -23,6 +23,11 @@ management:
       exposure:
         include: '*'
 
+info:
+  app:
+    name: Innowacje backend API
+    version: 1.0.1
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
