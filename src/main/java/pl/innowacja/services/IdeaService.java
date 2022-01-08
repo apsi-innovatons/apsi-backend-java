@@ -8,10 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.innowacja.exception.IdeaServiceException;
 import pl.innowacja.exception.NoResourceFoundException;
-import pl.innowacja.model.dtos.BenefitDto;
-import pl.innowacja.model.dtos.CostDto;
-import pl.innowacja.model.dtos.IdeaDto;
-import pl.innowacja.model.dtos.RatingSettingDto;
+import pl.innowacja.model.dtos.*;
 import pl.innowacja.model.entities.*;
 import pl.innowacja.model.mapper.GenericMapper;
 import pl.innowacja.model.mapper.IdeaMapper;
@@ -114,6 +111,14 @@ public class IdeaService {
         .collect(Collectors.toUnmodifiableList());
 
     ratingSettingRepository.saveAll(ratingSettingEntities);
+  }
+
+  public void addDecisionForIdea(DecisionDto decisionDto, Integer ideaId) {
+    var ideaEntity = ideaRepository.findById(ideaId)
+        .orElseThrow(() -> new NoResourceFoundException("No idea with given id exists"));
+    ideaEntity.setStatus(decisionDto.getIdeaStatus().getValue());
+    ideaEntity.setStatusDescription(decisionDto.getDescription());
+    ideaRepository.save(ideaEntity);
   }
 
   private List<BenefitDto> getBenefitsForIdea(Integer ideaId) {

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.innowacja.model.dtos.DecisionDto;
 import pl.innowacja.model.dtos.IdeaDto;
 import pl.innowacja.model.dtos.RatingSettingDto;
 import pl.innowacja.model.requests.AddRatingSettingsDto;
@@ -79,5 +80,10 @@ public class IdeaController {
   @DeleteMapping("/{ideaId}/rating-settings")
   public void deleteRatingSettingsByIdeaId(@PathVariable Integer ideaId) {
     ideaService.deleteRatingSettingsByIdeaId(ideaId);
+  }
+
+  @PutMapping("/{ideaId}/decision")
+  public void addDecisionForIdea(@PathVariable Integer ideaId, @RequestBody DecisionDto decisionDto) {
+    ideaService.addDecisionForIdea(decisionDto, ideaId);
   }
 }
