@@ -21,8 +21,9 @@ public class IdeaDto {
   private String statusDescription;
   private LocalDate date;
   private Double rating;
-  private Integer subjectId;
   private Integer authorId;
+  private Integer subjectId;
+  private Boolean alreadyReviewed;
   @NotNull
   private Boolean anonymous;
   @NotNull

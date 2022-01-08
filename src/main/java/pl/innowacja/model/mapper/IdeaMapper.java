@@ -39,6 +39,7 @@ public class IdeaMapper {
         ideaEntity.getRating(),
         ideaEntity.getAuthorId(),
         ideaEntity.getSubjectId(),
+        Boolean.FALSE,
         ideaEntity.getAnonymous(),
         ideaEntity.getBlocked(),
         mapKeywords(ideaEntity.getKeywords()),

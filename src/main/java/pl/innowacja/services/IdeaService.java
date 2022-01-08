@@ -18,6 +18,7 @@ import pl.innowacja.repositories.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,11 +31,18 @@ public class IdeaService {
   private final CostRepository costRepository;
   private final AttachmentRepository attachmentRepository;
   private final RatingSettingRepository ratingSettingRepository;
+  private final ReviewRepository reviewRepository;
   private final GenericMapper genericMapper;
 
   public List<IdeaDto> getAll() {
+    var reviewSet = reviewRepository.findAll().stream()
+        .filter(review -> getCurrentUserId().equals(review.getAuthorId()))
+        .map(ReviewEntity::getIdeaId)
+        .collect(Collectors.toSet());
+
     return ideaRepository.findAll().stream()
         .map(IdeaMapper::map)
+        .peek(idea -> setAlreadyReviewed(reviewSet, idea))
         .collect(Collectors.toList());
   }
 
@@ -197,6 +205,12 @@ public class IdeaService {
   private void assertIdeaExistence(Integer ideaId) {
     if (ideaRepository.findById(ideaId).isEmpty()) {
       throw new NoResourceFoundException("Idea with given id does not exist");
+    }
+  }
+
+  private void setAlreadyReviewed(Set<Integer> reviewSet, IdeaDto idea) {
+    if (reviewSet.contains(idea.getId())) {
+      idea.setAlreadyReviewed(true);
     }
   }
 

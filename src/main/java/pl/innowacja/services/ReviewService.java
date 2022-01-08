@@ -53,7 +53,7 @@ public class ReviewService {
   private boolean reviewOfCurrentUserAlreadyExists(Integer ideaId) {
     return reviewRepository.findAll().stream()
         .filter(review -> ideaId.equals(review.getIdeaId()))
-        .anyMatch(review -> review.getAuthorId().equals(getCurrentUserId()));
+        .anyMatch(review -> getCurrentUserId().equals(review.getAuthorId()));
   }
 
   public List<ReviewDto> getReviewsByIdeaId(Integer ideaId) {
