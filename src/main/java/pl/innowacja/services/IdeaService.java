@@ -35,15 +35,19 @@ public class IdeaService {
   private final GenericMapper genericMapper;
 
   public List<IdeaDto> getAll() {
-    var reviewSet = reviewRepository.findAll().stream()
-        .filter(review -> getCurrentUserId().equals(review.getAuthorId()))
-        .map(ReviewEntity::getIdeaId)
-        .collect(Collectors.toSet());
+    var reviewSet = getCurrentUserReviewIds();
 
     return ideaRepository.findAll().stream()
         .map(IdeaMapper::map)
         .peek(idea -> setAlreadyReviewed(reviewSet, idea))
         .collect(Collectors.toList());
+  }
+
+  private Set<Integer> getCurrentUserReviewIds() {
+    return reviewRepository.findAll().stream()
+        .filter(review -> getCurrentUserId().equals(review.getAuthorId()))
+        .map(ReviewEntity::getIdeaId)
+        .collect(Collectors.toSet());
   }
 
   public Integer saveIdea(IdeaDto ideaDto) {
@@ -69,6 +73,9 @@ public class IdeaService {
     var ideaDto = IdeaMapper.map(ideaEntity);
     var costs = getCostsForIdea(ideaId);
     var benefits = getBenefitsForIdea(ideaId);
+    if (getCurrentUserReviewIds().contains(ideaId)) {
+      ideaDto.setAlreadyReviewed(Boolean.TRUE);
+    }
 
     ideaDto.setCosts(costs);
     ideaDto.setBenefits(benefits);
