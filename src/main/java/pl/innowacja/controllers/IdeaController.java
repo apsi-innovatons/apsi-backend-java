@@ -7,12 +7,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.innowacja.model.dtos.IdeaDto;
 import pl.innowacja.model.dtos.RatingSettingDto;
-import pl.innowacja.model.requests.RatingSettingCreateRequest;
+import pl.innowacja.model.requests.AddRatingSettingsDto;
 import pl.innowacja.services.IdeaService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -63,8 +61,8 @@ public class IdeaController {
 
   @PostMapping("/{ideaId}/rating-settings")
   public void saveRatingSatingsByIdeaId(@PathVariable Integer ideaId,
-                                        @RequestBody @Valid RatingSettingCreateRequest ratingSettingCreateRequest) {
-    ideaService.saveRatingSettingsByIdeaId(ideaId, ratingSettingCreateRequest);
+                                        @RequestBody @Valid AddRatingSettingsDto addRatingSettingsDto) {
+    ideaService.saveRatingSettingsByIdeaId(ideaId, addRatingSettingsDto);
   }
 
   @GetMapping("/{ideaId}/rating-settings")
@@ -81,10 +79,5 @@ public class IdeaController {
   @DeleteMapping("/{ideaId}/rating-settings")
   public void deleteRatingSettingsByIdeaId(@PathVariable Integer ideaId) {
     ideaService.deleteRatingSettingsByIdeaId(ideaId);
-  }
-
-  @PutMapping("/{ideaId}/rating")
-  public void rateIdeaById(@PathVariable Integer ideaId, @RequestParam @Min(0) @Max(5) Double rating) {
-    ideaService.rateIdeaById(ideaId, rating);
   }
 }

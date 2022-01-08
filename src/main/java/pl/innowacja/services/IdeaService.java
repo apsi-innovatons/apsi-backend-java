@@ -13,10 +13,9 @@ import pl.innowacja.model.dtos.CostDto;
 import pl.innowacja.model.dtos.IdeaDto;
 import pl.innowacja.model.dtos.RatingSettingDto;
 import pl.innowacja.model.entities.*;
-import pl.innowacja.model.enums.UserRole;
 import pl.innowacja.model.mapper.GenericMapper;
 import pl.innowacja.model.mapper.IdeaMapper;
-import pl.innowacja.model.requests.RatingSettingCreateRequest;
+import pl.innowacja.model.requests.AddRatingSettingsDto;
 import pl.innowacja.repositories.*;
 
 import java.time.LocalDate;
@@ -35,7 +34,6 @@ public class IdeaService {
   private final AttachmentRepository attachmentRepository;
   private final RatingSettingRepository ratingSettingRepository;
   private final GenericMapper genericMapper;
-  private final RatingRepository ratingRepository;
 
   public List<IdeaDto> getAll() {
     return ideaRepository.findAll().stream()
@@ -61,22 +59,75 @@ public class IdeaService {
         .collect(Collectors.toList());
   }
 
-  public IdeaDto getById(Integer id) {
-    var ideaEntity = ideaRepository.findById(id).orElseThrow(NoResourceFoundException::new);
+  public IdeaDto getById(Integer ideaId) {
+    var ideaEntity = ideaRepository.findById(ideaId).orElseThrow(NoResourceFoundException::new);
     var ideaDto = IdeaMapper.map(ideaEntity);
-    var costs = costRepository.findAll().stream()
-        .filter(cost -> cost.getIdeaId().equals(id))
-        .map(costEntity -> genericMapper.map(costEntity, CostDto.class))
-        .collect(Collectors.toList());
-
-    var benefits = benefitRepository.findAll().stream()
-        .filter(benefit -> benefit.getIdeaId().equals(id))
-        .map(benefitEntity -> genericMapper.map(benefitEntity, BenefitDto.class))
-        .collect(Collectors.toList());
+    var costs = getCostsForIdea(ideaId);
+    var benefits = getBenefitsForIdea(ideaId);
 
     ideaDto.setCosts(costs);
     ideaDto.setBenefits(benefits);
     return ideaDto;
+  }
+
+  public void deleteIdea(Integer ideaId) {
+    if (ideaRepository.findById(ideaId).isEmpty()) {
+      throw new NoResourceFoundException();
+    }
+    deleteCostsByIdeaId(ideaId);
+    deleteBenefitsByIdeaId(ideaId);
+    deleteAttachmentsByIdeaId(ideaId);
+    ideaRepository.deleteById(ideaId);
+  }
+
+  public List<RatingSettingDto> getRatingSettingsByIdeaId(Integer ideaId) {
+    return ratingSettingRepository.findAll().stream()
+        .filter(ratingSettingEntity -> ideaId.equals(ratingSettingEntity.getIdeaId()))
+        .map(ratingSettingEntity -> genericMapper.map(ratingSettingEntity, RatingSettingDto.class))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public void updateExistingRatingSettingsByIdeaId(Integer ideaId, List<RatingSettingDto> newRatingSettings) {
+    deleteRatingSettingsByIdeaId(ideaId);
+
+    var newRatingSettingEntities = newRatingSettings.stream()
+        .map(ratingSettingDto -> genericMapper.map(ratingSettingDto, RatingSettingEntity.class))
+        .collect(Collectors.toUnmodifiableList());
+
+    ratingSettingRepository.saveAll(newRatingSettingEntities);
+  }
+
+  public void deleteRatingSettingsByIdeaId(Integer ideaId) {
+    assertIdeaExistence(ideaId);
+
+    var idsToDelete = getRatingSettingsByIdeaId(ideaId).stream()
+        .map(RatingSettingDto::getId)
+        .collect(Collectors.toUnmodifiableList());
+
+    ratingSettingRepository.deleteAllById(idsToDelete);
+  }
+
+  public void saveRatingSettingsByIdeaId(Integer ideaId, AddRatingSettingsDto addRatingSettingsDto) {
+    var ratingSettingEntities = addRatingSettingsDto.getRatingSettings().stream()
+        .map(ratingSetting -> genericMapper.map(ratingSetting, RatingSettingEntity.class))
+        .peek(ratingSettingEntity -> ratingSettingEntity.setIdeaId(ideaId))
+        .collect(Collectors.toUnmodifiableList());
+
+    ratingSettingRepository.saveAll(ratingSettingEntities);
+  }
+
+  private List<BenefitDto> getBenefitsForIdea(Integer ideaId) {
+    return benefitRepository.findAll().stream()
+        .filter(benefit -> benefit.getIdeaId().equals(ideaId))
+        .map(benefitEntity -> genericMapper.map(benefitEntity, BenefitDto.class))
+        .collect(Collectors.toList());
+  }
+
+  private List<CostDto> getCostsForIdea(Integer ideaId) {
+    return costRepository.findAll().stream()
+        .filter(cost -> cost.getIdeaId().equals(ideaId))
+        .map(costEntity -> genericMapper.map(costEntity, CostDto.class))
+        .collect(Collectors.toList());
   }
 
   private void validateUpdateDto(IdeaDto ideaDto) {
@@ -114,88 +165,28 @@ public class IdeaService {
     return savedIdea;
   }
 
-  public void deleteIdea(Integer id) {
-    if (ideaRepository.findById(id).isEmpty()) {
-      throw new NoResourceFoundException();
-    }
-    var costIds = costRepository.findAll().stream()
-        .filter(cost -> cost.getIdeaId().equals(id))
-        .map(CostEntity::getId)
-        .collect(Collectors.toList());
-    costRepository.deleteAllById(costIds);
-
-    var benefitIds = benefitRepository.findAll().stream()
-        .filter(benefit -> benefit.getIdeaId().equals(id))
-        .map(BenefitEntity::getId)
-        .collect(Collectors.toList());
-    benefitRepository.deleteAllById(benefitIds);
-
+  private void deleteAttachmentsByIdeaId(Integer ideaId) {
     var attachmentIds = attachmentRepository.findAll().stream()
-        .filter(attachment -> attachment.getIdeaId().equals(id))
+        .filter(attachment -> attachment.getIdeaId().equals(ideaId))
         .map(AttachmentEntity::getId)
         .collect(Collectors.toList());
     attachmentRepository.deleteAllById(attachmentIds);
-    ideaRepository.deleteById(id);
   }
 
-  public void saveRatingSettingsByIdeaId(Integer ideaId, RatingSettingCreateRequest ratingSettingCreateRequest) {
-    var ratingSettingEntities = ratingSettingCreateRequest.getRatingSettings().stream()
-        .map(ratingSetting -> genericMapper.map(ratingSetting, RatingSettingEntity.class))
-        .peek(ratingSettingEntity -> ratingSettingEntity.setIdeaId(ideaId))
-        .collect(Collectors.toUnmodifiableList());
-
-    ratingSettingRepository.saveAll(ratingSettingEntities);
+  private void deleteBenefitsByIdeaId(Integer ideaId) {
+    var benefitIds = benefitRepository.findAll().stream()
+        .filter(benefit -> benefit.getIdeaId().equals(ideaId))
+        .map(BenefitEntity::getId)
+        .collect(Collectors.toList());
+    benefitRepository.deleteAllById(benefitIds);
   }
 
-  public List<RatingSettingDto> getRatingSettingsByIdeaId(Integer ideaId) {
-    return ratingSettingRepository.findAll().stream()
-        .filter(ratingSettingEntity -> ideaId.equals(ratingSettingEntity.getIdeaId()))
-        .map(ratingSettingEntity -> genericMapper.map(ratingSettingEntity, RatingSettingDto.class))
-        .collect(Collectors.toUnmodifiableList());
-  }
-
-  public void updateExistingRatingSettingsByIdeaId(Integer ideaId, List<RatingSettingDto> newRatingSettings) {
-    deleteRatingSettingsByIdeaId(ideaId);
-
-    var newRatingSettingEntities = newRatingSettings.stream()
-        .map(ratingSettingDto -> genericMapper.map(ratingSettingDto, RatingSettingEntity.class))
-        .collect(Collectors.toUnmodifiableList());
-
-    ratingSettingRepository.saveAll(newRatingSettingEntities);
-  }
-
-  public void deleteRatingSettingsByIdeaId(Integer ideaId) {
-    assertIdeaExistence(ideaId);
-
-    var idsToDelete = getRatingSettingsByIdeaId(ideaId).stream()
-        .map(RatingSettingDto::getId)
-        .collect(Collectors.toUnmodifiableList());
-
-    ratingSettingRepository.deleteAllById(idsToDelete);
-  }
-
-  public void rateIdeaById(Integer ideaId, Double rating) {
-    var ratingWeight = getRatingWeightForCurrentUser(ideaId);
-    var ratingEntity = new RatingEntity();
-    ratingEntity.setIdeaId(ideaId);
-    ratingEntity.setAuthorId(getCurrentUserId());
-    ratingEntity.setWeight(ratingWeight);
-    ratingEntity.setValue(rating);
-    ratingRepository.save(ratingEntity);
-  }
-
-  private Double getRatingWeightForCurrentUser(Integer ideaId) {
-    var currentUserRole = getCurrentUserRole(ideaId);
-    return getRatingSettingsByIdeaId(ideaId).stream()
-        .filter(setting -> currentUserRole.equals(setting.getUserRole()))
-        .findAny()
-        .map(RatingSettingDto::getWeight)
-        .orElseThrow(() -> new NoResourceFoundException("No rating setting for given user role."));
-  }
-
-  private UserRole getCurrentUserRole(Integer ideaId) {
-    var userEntity = ((UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-    return UserRole.valueOf(userEntity.getUserRole());
+  private void deleteCostsByIdeaId(Integer ideaId) {
+    var costIds = costRepository.findAll().stream()
+        .filter(cost -> cost.getIdeaId().equals(ideaId))
+        .map(CostEntity::getId)
+        .collect(Collectors.toList());
+    costRepository.deleteAllById(costIds);
   }
 
   private void assertIdeaExistence(Integer ideaId) {

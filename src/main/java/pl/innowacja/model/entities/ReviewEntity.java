@@ -17,7 +17,9 @@ public class ReviewEntity {
   @Column(name = "Description")
   private String description;
   @Column(name = "Rating", nullable = false)
-  private Integer rating;
+  private Double rating;
+  @Column(name = "Weight", nullable = false)
+  private Double weight;
   @Column(name = "Date", nullable = false)
   private Date date;
   @Column(name = "IdeaId")

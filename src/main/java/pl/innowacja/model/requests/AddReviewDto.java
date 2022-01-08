@@ -11,10 +11,10 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviewCreateRequest {
+public class AddReviewDto {
   private String description;
   @NotNull
   @DecimalMin("0")
   @DecimalMax("6")
-  private Integer rating;
+  private Double rating;
 }

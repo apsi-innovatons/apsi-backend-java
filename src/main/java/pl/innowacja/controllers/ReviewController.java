@@ -4,7 +4,7 @@ import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.innowacja.model.dtos.ReviewDto;
-import pl.innowacja.model.requests.ReviewCreateRequest;
+import pl.innowacja.model.requests.AddReviewDto;
 import pl.innowacja.services.ReviewService;
 
 import javax.validation.Valid;
@@ -19,8 +19,8 @@ public class ReviewController {
   private final ReviewService reviewService;
 
   @PostMapping("/ideas/{ideaId}/reviews")
-  public Integer saveReviewByIdeaId(@PathVariable Integer ideaId, @RequestBody @Valid ReviewCreateRequest reviewCreateRequest) {
-    return reviewService.saveReview(ideaId, reviewCreateRequest);
+  public Integer saveReviewByIdeaId(@PathVariable Integer ideaId, @RequestBody @Valid AddReviewDto addReviewDto) {
+    return reviewService.saveReview(ideaId, addReviewDto);
   }
 
   @GetMapping("/ideas/{ideaId}/reviews")
