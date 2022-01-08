@@ -19,6 +19,7 @@ public class AddRatingSettingsDto {
 
   @Data
   @NoArgsConstructor
+  @AllArgsConstructor
   public static class RatingSetting {
     private UserRole userRole;
     @DecimalMin("0")

@@ -10,15 +10,14 @@ import pl.innowacja.exception.IdeaServiceException;
 import pl.innowacja.exception.NoResourceFoundException;
 import pl.innowacja.model.dtos.*;
 import pl.innowacja.model.entities.*;
+import pl.innowacja.model.enums.UserRole;
 import pl.innowacja.model.mapper.GenericMapper;
 import pl.innowacja.model.mapper.IdeaMapper;
 import pl.innowacja.model.requests.AddRatingSettingsDto;
 import pl.innowacja.repositories.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,7 +52,9 @@ public class IdeaService {
   public Integer saveIdea(IdeaDto ideaDto) {
     ideaDto.setAuthorId(getCurrentUserId());
     ideaDto.setDate(LocalDate.now());
-    return saveEntity(ideaDto).getId();
+    var savedIdeaId = saveEntity(ideaDto).getId();
+    setDefaultRatingSettingsForIdea(savedIdeaId);
+    return savedIdeaId;
   }
 
   public void update(IdeaDto ideaDto) {
@@ -167,22 +168,32 @@ public class IdeaService {
     log.info("Saving idea in database.");
     var savedIdea = ideaRepository.save(ideaEntity);
 
-    var costs = ideaDto.getCosts().stream()
-        .map(cost -> genericMapper.map(cost, CostEntity.class))
-        .peek(costEntity -> costEntity.setIdeaId(savedIdea.getId()))
-        .collect(Collectors.toList());
+    var costs = getCostEntities(ideaDto, savedIdea);
 
     log.info("Saving costs for idea {} in database.", savedIdea.getId());
     costRepository.saveAll(costs);
 
-    var benefits = ideaDto.getBenefits().stream()
-        .map(benefit -> genericMapper.map(benefit, BenefitEntity.class))
-        .peek(benefit -> benefit.setIdeaId(savedIdea.getId()))
-        .collect(Collectors.toList());
+    var benefits = getBenefitEntities(ideaDto, savedIdea);
 
     log.info("Saving benefits for idea {} in database.", savedIdea.getId());
     benefitRepository.saveAll(benefits);
     return savedIdea;
+  }
+
+  private List<BenefitEntity> getBenefitEntities(IdeaDto ideaDto, IdeaEntity savedIdea) {
+    return Optional.ofNullable(ideaDto)
+        .map(IdeaDto::getBenefits)
+        .map(benefit -> genericMapper.map(benefit, BenefitEntity.class)).stream()
+        .peek(benefit -> benefit.setIdeaId(savedIdea.getId()))
+        .collect(Collectors.toList());
+  }
+
+  private List<CostEntity> getCostEntities(IdeaDto ideaDto, IdeaEntity savedIdea) {
+    return Optional.ofNullable(ideaDto)
+        .map(IdeaDto::getCosts)
+        .map(cost -> genericMapper.map(cost, CostEntity.class)).stream()
+        .peek(costEntity -> costEntity.setIdeaId(savedIdea.getId()))
+        .collect(Collectors.toList());
   }
 
   private void deleteAttachmentsByIdeaId(Integer ideaId) {
@@ -219,6 +230,17 @@ public class IdeaService {
     if (reviewSet.contains(idea.getId())) {
       idea.setAlreadyReviewed(true);
     }
+  }
+
+  private void setDefaultRatingSettingsForIdea(Integer ideaId) {
+    var defaultRattingSettings = getDefaultRattingSettings();
+    saveRatingSettingsByIdeaId(ideaId, new AddRatingSettingsDto(defaultRattingSettings));
+  }
+
+  private List<AddRatingSettingsDto.RatingSetting> getDefaultRattingSettings() {
+    return Arrays.stream(UserRole.values())
+        .map(userRole -> new AddRatingSettingsDto.RatingSetting(userRole, 1.0D))
+        .collect(Collectors.toUnmodifiableList());
   }
 
   private Integer getCurrentUserId() {

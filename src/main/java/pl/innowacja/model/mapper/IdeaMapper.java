@@ -22,8 +22,8 @@ public class IdeaMapper {
         ideaDto.getBlocked(),
         ideaDto.getAnonymous(),
         ideaDto.getRating(),
-        ideaDto.getAuthorId(),
         ideaDto.getSubjectId(),
+        ideaDto.getAuthorId(),
         mapKeywords(ideaDto.getKeywords())
     );
   }
