@@ -21,7 +21,7 @@ public class IdeaMapper {
         ideaDto.getDate() == null ? null : Date.valueOf(ideaDto.getDate()),
         ideaDto.getBlocked(),
         ideaDto.getAnonymous(),
-        ideaDto.getRating(),
+        ideaDto.getRating() == null ? 0D : ideaDto.getRating(),
         ideaDto.getSubjectId(),
         ideaDto.getAuthorId(),
         mapKeywords(ideaDto.getKeywords())
