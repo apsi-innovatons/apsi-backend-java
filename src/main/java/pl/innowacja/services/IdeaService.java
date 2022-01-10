@@ -191,17 +191,21 @@ public class IdeaService {
   }
 
   private List<BenefitEntity> getBenefitEntities(IdeaDto ideaDto, IdeaEntity savedIdea) {
-    return Optional.ofNullable(ideaDto)
-        .map(IdeaDto::getBenefits)
-        .map(benefit -> genericMapper.map(benefit, BenefitEntity.class)).stream()
+    if (ideaDto.getBenefits() == null) {
+      return new ArrayList<>();
+    }
+    return ideaDto.getBenefits().stream()
+        .map(benefit -> genericMapper.map(benefit, BenefitEntity.class))
         .peek(benefit -> benefit.setIdeaId(savedIdea.getId()))
         .collect(Collectors.toList());
   }
 
   private List<CostEntity> getCostEntities(IdeaDto ideaDto, IdeaEntity savedIdea) {
-    return Optional.ofNullable(ideaDto)
-        .map(IdeaDto::getCosts)
-        .map(cost -> genericMapper.map(cost, CostEntity.class)).stream()
+    if (ideaDto.getCosts() == null) {
+      return new ArrayList<>();
+    }
+    return ideaDto.getCosts().stream()
+        .map(cost -> genericMapper.map(cost, CostEntity.class))
         .peek(costEntity -> costEntity.setIdeaId(savedIdea.getId()))
         .collect(Collectors.toList());
   }
