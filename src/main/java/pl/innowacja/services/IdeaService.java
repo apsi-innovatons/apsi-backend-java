@@ -35,10 +35,12 @@ public class IdeaService {
 
   public List<IdeaDto> getAll() {
     var reviewSet = getCurrentUserReviewIds();
+    var costMap = getCostMap();
+    var benefitsMap = getBenefitsMap();
 
     return ideaRepository.findAll().stream()
         .map(IdeaMapper::map)
-        .peek(idea -> setAlreadyReviewed(reviewSet, idea))
+        .peek(idea -> setBenefitsCostsAndAlreadyReviewed(reviewSet, costMap, benefitsMap, idea))
         .collect(Collectors.toList());
   }
 
@@ -265,5 +267,35 @@ public class IdeaService {
   private Integer getCurrentUserId() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     return (int) authentication.getCredentials();
+  }
+
+  private Map<Integer, List<BenefitDto>> getBenefitsMap() {
+    return benefitRepository.findAll().stream()
+        .collect(Collectors.groupingBy(
+            BenefitEntity::getIdeaId,
+            Collectors.mapping(benefitEntity -> genericMapper.map(benefitEntity, BenefitDto.class),
+                Collectors.toUnmodifiableList())));
+  }
+
+  private Map<Integer, List<CostDto>> getCostMap() {
+    return costRepository.findAll().stream()
+        .collect(Collectors.groupingBy(
+            CostEntity::getIdeaId,
+            Collectors.mapping(costEntity -> genericMapper.map(costEntity, CostDto.class),
+                Collectors.toUnmodifiableList())));
+  }
+
+  private void setBenefitsCostsAndAlreadyReviewed(Set<Integer> reviewSet, Map<Integer, List<CostDto>> costMap, Map<Integer, List<BenefitDto>> benefitsMap, IdeaDto idea) {
+    if (costMap.containsKey(idea.getId())) {
+      idea.setCosts(costMap.get(idea.getId()));
+    }
+
+    if (benefitsMap.containsKey(idea.getId())) {
+      idea.setBenefits(benefitsMap.get(idea.getId()));
+    }
+
+    if (reviewSet.contains(idea.getId())) {
+      idea.setAlreadyReviewed(true);
+    }
   }
 }
