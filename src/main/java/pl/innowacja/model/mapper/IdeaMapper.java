@@ -24,7 +24,8 @@ public class IdeaMapper {
         ideaDto.getRating() == null ? 0D : ideaDto.getRating(),
         ideaDto.getSubjectId(),
         ideaDto.getAuthorId(),
-        mapKeywords(ideaDto.getKeywords())
+        mapKeywords(ideaDto.getKeywords()),
+        ideaDto.getVotesSum() == null ? 0 : ideaDto.getVotesSum()
     );
   }
 
@@ -44,8 +45,18 @@ public class IdeaMapper {
         ideaEntity.getBlocked(),
         mapKeywords(ideaEntity.getKeywords()),
         null,
-        null
+        null,
+        ideaEntity.getVotesSum()
     );
+  }
+
+  public static int ideaDateComparator(IdeaDto idea1, IdeaDto idea2) {
+    if (idea1.getDate().isAfter(idea2.getDate())) {
+      return -1;
+    } else if (idea1.getDate().isEqual(idea2.getDate())) {
+      return 0;
+    }
+    return 1;
   }
 
   private static String mapKeywords(List<String> keywords) {

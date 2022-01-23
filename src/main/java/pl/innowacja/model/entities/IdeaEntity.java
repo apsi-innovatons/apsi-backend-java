@@ -40,5 +40,6 @@ public class IdeaEntity {
   private Integer authorId;
   @Column(name = "Keywords")
   private String keywords;
-
+  @Column(name = "VotesSum", nullable = false)
+  private Integer votesSum;
 }

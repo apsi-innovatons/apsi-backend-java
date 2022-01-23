@@ -41,6 +41,7 @@ public class IdeaService {
     return ideaRepository.findAll().stream()
         .map(IdeaMapper::map)
         .peek(idea -> setBenefitsCostsAndAlreadyReviewed(reviewSet, costMap, benefitsMap, idea))
+        .sorted(IdeaMapper::ideaDateComparator)
         .collect(Collectors.toList());
   }
 

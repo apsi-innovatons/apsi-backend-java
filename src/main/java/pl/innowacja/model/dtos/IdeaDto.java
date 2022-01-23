@@ -33,4 +33,5 @@ public class IdeaDto {
   private List<CostDto> costs;
   @Valid
   private List<BenefitDto> benefits;
+  private Integer votesSum;
 }
