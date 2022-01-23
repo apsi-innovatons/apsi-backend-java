@@ -17,6 +17,8 @@ public class SubjectEntity {
   @JsonValue
   @Column(name = "Name")
   private String name;
+  @Column(name = "Done")
+  private Boolean done;
   @Column(name = "Audience")
   private Integer audience;
 }

@@ -2,6 +2,7 @@ package pl.innowacja.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.innowacja.model.dtos.SubjectDto;
@@ -32,7 +33,19 @@ public class SubjectController {
 
   @PostMapping
   @ApiOperation(value = "Save subject in database, returns id of saved entity")
-  public Integer saveSubject(SubjectDto subjectDto) {
+  public Integer saveSubject(@RequestBody SubjectDto subjectDto) {
     return subjectService.saveSubject(subjectDto);
+  }
+
+  @GetMapping("/{id}/committee")
+  @ApiOperation(value = "Get committee members for given subject")
+  public List<Integer> getCommitteeIdsBySubjectId(@PathVariable Integer id) {
+    return subjectService.getCommitteeMembersForSubject(id);
+  }
+
+  @GetMapping("/current-user")
+  @ApiOperation(value = "Get ids of subjects that current user belongs to")
+  public List<Integer> getSubjectIdsForCurrentUser() {
+    return subjectService.getSubjectIdsOfCurrentUser();
   }
 }
