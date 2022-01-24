@@ -8,6 +8,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class IdeaMapper {
@@ -25,7 +26,8 @@ public class IdeaMapper {
         ideaDto.getSubjectId(),
         ideaDto.getAuthorId(),
         mapKeywords(ideaDto.getKeywords()),
-        ideaDto.getVotesSum() == null ? 0 : ideaDto.getVotesSum()
+        ideaDto.getVotesSum() == null ? 0 : ideaDto.getVotesSum(),
+        ideaDto.getRejectsSum() == null ? 0 : ideaDto.getRejectsSum()
     );
   }
 
@@ -46,7 +48,9 @@ public class IdeaMapper {
         mapKeywords(ideaEntity.getKeywords()),
         null,
         null,
-        ideaEntity.getVotesSum()
+        ideaEntity.getVotesSum(),
+        ideaEntity.getRejectsSum(),
+        null
     );
   }
 
@@ -57,6 +61,15 @@ public class IdeaMapper {
       return 0;
     }
     return 1;
+  }
+
+  public static int voteComparator(IdeaDto idea1, IdeaDto idea2) {
+    if (idea1.getVotesSum() > idea2.getVotesSum()) {
+      return 1;
+    } else if (Objects.equals(idea1.getVotesSum(), idea2.getVotesSum())) {
+      return 0;
+    }
+    return -1;
   }
 
   private static String mapKeywords(List<String> keywords) {

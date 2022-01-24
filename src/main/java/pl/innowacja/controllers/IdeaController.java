@@ -54,6 +54,12 @@ public class IdeaController {
     return ideaService.getIdeasForSubject(subjectId);
   }
 
+  @GetMapping("/uncategorized")
+  @ApiOperation(value = "Get all ideas with no category")
+  public List<IdeaDto> getUncategorizedIdeas() {
+    return ideaService.getUncategorizedIdeas();
+  }
+
   @GetMapping("/{id}")
   @ApiOperation(value = "Get idea with given id")
   public IdeaDto getIdeaById(@PathVariable Integer id) {

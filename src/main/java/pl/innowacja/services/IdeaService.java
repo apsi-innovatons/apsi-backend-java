@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.innowacja.exception.IdeaServiceException;
 import pl.innowacja.exception.NoResourceFoundException;
 import pl.innowacja.model.dtos.*;
@@ -32,15 +33,17 @@ public class IdeaService {
   private final RatingSettingRepository ratingSettingRepository;
   private final ReviewRepository reviewRepository;
   private final GenericMapper genericMapper;
+  private final JdbcRepository jdbcRepository;
 
   public List<IdeaDto> getAll() {
     var reviewSet = getCurrentUserReviewIds();
     var costMap = getCostMap();
     var benefitsMap = getBenefitsMap();
+    var attachmentIdsMap = getAttachmentIdIdeaIdMap();
 
     return ideaRepository.findAll().stream()
         .map(IdeaMapper::map)
-        .peek(idea -> setBenefitsCostsAndAlreadyReviewed(reviewSet, costMap, benefitsMap, idea))
+        .peek(idea -> setBenefitsCostsAndAlreadyReviewed(reviewSet, costMap, benefitsMap, idea, attachmentIdsMap))
         .sorted(IdeaMapper::ideaDateComparator)
         .collect(Collectors.toList());
   }
@@ -68,7 +71,14 @@ public class IdeaService {
   public List<IdeaDto> getIdeasForSubject(Integer subjectId) {
     return getAll().stream()
         .filter(idea -> subjectId.equals(idea.getSubjectId()))
+        .sorted(IdeaMapper::voteComparator)
         .collect(Collectors.toList());
+  }
+
+  public List<IdeaDto> getUncategorizedIdeas() {
+    return getAll().stream()
+        .filter(idea -> Objects.isNull(idea.getSubjectId()))
+        .collect(Collectors.toUnmodifiableList());
   }
 
   public IdeaDto getById(Integer ideaId) {
@@ -285,7 +295,18 @@ public class IdeaService {
                 Collectors.toUnmodifiableList())));
   }
 
-  private void setBenefitsCostsAndAlreadyReviewed(Set<Integer> reviewSet, Map<Integer, List<CostDto>> costMap, Map<Integer, List<BenefitDto>> benefitsMap, IdeaDto idea) {
+  private Map<Integer, List<Integer>> getAttachmentIdIdeaIdMap() {
+    return jdbcRepository.getAttachmentIdeaMap().stream()
+        .collect(Collectors.groupingBy(
+            IdeaAttachmentDto::getIdeaId,
+            Collectors.mapping(IdeaAttachmentDto::getId,
+                Collectors.toUnmodifiableList())));
+  }
+
+  private void setBenefitsCostsAndAlreadyReviewed(Set<Integer> reviewSet, Map<Integer,
+                                                  List<CostDto>> costMap, Map<Integer,
+                                                  List<BenefitDto>> benefitsMap, IdeaDto idea,
+                                                  Map<Integer, List<Integer>> attachmentIdsMap) {
     if (costMap.containsKey(idea.getId())) {
       idea.setCosts(costMap.get(idea.getId()));
     }
@@ -296,6 +317,15 @@ public class IdeaService {
 
     if (reviewSet.contains(idea.getId())) {
       idea.setAlreadyReviewed(true);
+    }
+
+    if (attachmentIdsMap.containsKey(idea.getId())) {
+      var serverUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+      var attachments = attachmentIdsMap.get(idea.getId());
+      var attachmentUrls = attachments.stream()
+          .map(attachmentId -> serverUrl + "/attachments/" + attachmentId)
+          .collect(Collectors.toUnmodifiableList());
+      idea.setAttachmentUrls(attachmentUrls);
     }
   }
 }

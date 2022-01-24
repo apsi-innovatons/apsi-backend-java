@@ -34,4 +34,6 @@ public class IdeaDto {
   @Valid
   private List<BenefitDto> benefits;
   private Integer votesSum;
+  private Integer rejectsSum;
+  private List<String> attachmentUrls;
 }

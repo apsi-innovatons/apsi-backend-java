@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pl.innowacja.exception.IdeaServiceException;
+import pl.innowacja.model.entities.IdeaEntity;
 import pl.innowacja.model.entities.SubjectUserEntity;
 import pl.innowacja.model.entities.VoteEntity;
 import pl.innowacja.repositories.IdeaRepository;
+import pl.innowacja.repositories.JdbcRepository;
 import pl.innowacja.repositories.SubjectUserRepository;
 import pl.innowacja.repositories.VoteRepository;
 
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,11 +24,26 @@ public class VoteService {
   private final VoteRepository voteRepository;
   private final IdeaRepository ideaRepository;
   private final SubjectUserRepository subjectUserRepository;
+  private final JdbcRepository jdbcRepository;
 
   public void vote(Map<Integer, Integer> votes, Integer subjectId) {
     var currentUserId = SecurityContextUtil.getCurrentUserId();
     validateVoting(votes, subjectId);
     votes.forEach((ideaId, value) -> saveVote(ideaId, value, currentUserId));
+  }
+
+  public void vote(Integer ideaId, Boolean accept) {
+    var currentUserId = SecurityContextUtil.getCurrentUserId();
+
+    var ideaEntity = getIdea(ideaId); // to assert existence
+
+    if (voteRepository.findAll().stream()
+        .anyMatch(vote -> currentUserId.equals(vote.getCommitteeMemberId()) && ideaId.equals(vote.getIdeaId()))) {
+      throw new IdeaServiceException("This user has already voted for this idea.", HttpStatus.BAD_REQUEST);
+    }
+
+    saveBinaryVote(ideaId, accept, currentUserId);
+    updateIdea(accept, ideaEntity);
   }
 
   public Integer getNumberOfVotesAllowed(Integer subjectId) {
@@ -47,6 +64,23 @@ public class VoteService {
     updateIdea(ideaId, value);
   }
 
+  private void updateIdea(Boolean accept, IdeaEntity ideaEntity) {
+    if (accept) {
+      ideaEntity.setVotesSum(ideaEntity.getVotesSum() + 1);
+    } else {
+      ideaEntity.setRejectsSum(ideaEntity.getRejectsSum() + 1);
+    }
+    ideaRepository.save(ideaEntity);
+  }
+
+  private void saveBinaryVote(Integer ideaId, Boolean accept, Integer currentUserId) {
+    var voteEntity = new VoteEntity();
+    voteEntity.setCommitteeMemberId(currentUserId);
+    voteEntity.setIdeaId(ideaId);
+    voteEntity.setValue(accept ? 1 : 0);
+    voteRepository.save(voteEntity);
+  }
+
   private void updateIdea(Integer ideaId, Integer value) {
     var ideaEntityOptional = ideaRepository.findById(ideaId);
     if (ideaEntityOptional.isPresent()) {
@@ -57,22 +91,28 @@ public class VoteService {
   }
 
   private void validateVoting(Map<Integer, Integer> votes, Integer subjectId) {
+    var ideaIdsSet = new HashSet<>(jdbcRepository.getAllIdeaIds());
     validateVoteMap(votes, subjectId);
     var currentUserId = SecurityContextUtil.getCurrentUserId();
     var currentUserVotes = voteRepository.findAll().stream()
         .filter(vote -> currentUserId.equals(vote.getCommitteeMemberId()))
         .collect(Collectors.toMap(VoteEntity::getId, Function.identity()));
 
-    votes.forEach((ideaId, value) -> checkIfAlreadyVoted(currentUserVotes, ideaId));
-    votes.forEach((ideaId, value) -> checkIfIdeaExists(ideaId));
+    votes.forEach((ideaId, value) -> assertNotVotedYet(currentUserVotes, ideaId));
+    votes.forEach((ideaId, value) -> assertIdeaExists(ideaIdsSet, ideaId));
     userEligibleToVote(subjectId);
   }
 
-  private void checkIfIdeaExists(Integer ideaId) {
-    var ideaEntityOptional = ideaRepository.findById(ideaId);
-    if (ideaEntityOptional.isEmpty()) {
-      throw new IdeaServiceException(String.format("Idea with id: %d does not exist", ideaId), HttpStatus.BAD_REQUEST);
+  private void assertIdeaExists(HashSet<Integer> ideaIdsSet, Integer ideaId) {
+    if (!ideaIdsSet.contains(ideaId)) {
+      throw new IdeaServiceException(String.format("Idea with id %d does not exist", ideaId), HttpStatus.BAD_REQUEST);
     }
+  }
+
+  private IdeaEntity getIdea(Integer ideaId) {
+    return ideaRepository.findById(ideaId)
+        .orElseThrow(
+            () -> new IdeaServiceException(String.format("Idea with id: %d does not exist", ideaId), HttpStatus.BAD_REQUEST));
   }
 
   private void userEligibleToVote(Integer subjectId) {
@@ -86,7 +126,7 @@ public class VoteService {
     return subjectUserEntity.getSubjectsId().equals(subjectId) && subjectUserEntity.getCommitteeMembersId().equals(SecurityContextUtil.getCurrentUserId());
   }
 
-  private void checkIfAlreadyVoted(Map<Integer, VoteEntity> currentUserVotes, Integer key) {
+  private void assertNotVotedYet(Map<Integer, VoteEntity> currentUserVotes, Integer key) {
     if (currentUserVotes.containsKey(key)) {
       throw new IdeaServiceException(String.format("Current user has already voted for ideaId %d", key), HttpStatus.BAD_REQUEST);
     }
