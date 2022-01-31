@@ -10,6 +10,7 @@ import pl.innowacja.model.dtos.SubjectDto;
 import pl.innowacja.model.entities.CostEntity;
 import pl.innowacja.model.entities.SubjectEntity;
 import pl.innowacja.model.entities.SubjectUserEntity;
+import pl.innowacja.model.entities.SubjectUserEntityPK;
 import pl.innowacja.model.mapper.GenericMapper;
 import pl.innowacja.repositories.SubjectRepository;
 import pl.innowacja.repositories.SubjectUserRepository;
@@ -63,11 +64,15 @@ public class SubjectService {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  public List<Integer> getSubjectIdsOfCurrentUser() {
+  public List<SubjectDto> getSubjectIdsOfCurrentUser() {
     var currentUserId = getCurrentUserId();
-    return subjectUserRepository.findAll().stream()
+    var subjectIds = subjectUserRepository.findAll().stream()
         .filter(subjectUserEntity -> subjectUserEntity.getCommitteeMembersId().equals(currentUserId))
         .map(SubjectUserEntity::getSubjectsId)
+        .collect(Collectors.toUnmodifiableList());
+
+    return subjectRepository.findAllById(subjectIds).stream()
+        .map(subjectEntity -> genericMapper.map(subjectEntity, SubjectDto.class))
         .collect(Collectors.toUnmodifiableList());
   }
 

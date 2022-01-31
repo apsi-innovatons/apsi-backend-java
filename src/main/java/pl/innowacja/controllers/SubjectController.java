@@ -45,7 +45,7 @@ public class SubjectController {
 
   @GetMapping("/current-user")
   @ApiOperation(value = "Get ids of subjects that current user belongs to")
-  public List<Integer> getSubjectIdsForCurrentUser() {
+  public List<SubjectDto> getSubjectIdsForCurrentUser() {
     return subjectService.getSubjectIdsOfCurrentUser();
   }
 }
