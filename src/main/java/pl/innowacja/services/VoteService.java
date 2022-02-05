@@ -37,6 +37,10 @@ public class VoteService {
 
     var ideaEntity = getIdea(ideaId); // to assert existence
 
+    if (ideaEntity.getSubjectId() != null) {
+      throw new IdeaServiceException("This idea belongs to a subject, decision vorting is forbidden", HttpStatus.BAD_REQUEST);
+    }
+
     if (voteRepository.findAll().stream()
         .anyMatch(vote -> currentUserId.equals(vote.getCommitteeMemberId()) && ideaId.equals(vote.getIdeaId()))) {
       throw new IdeaServiceException("This user has already voted for this idea.", HttpStatus.BAD_REQUEST);

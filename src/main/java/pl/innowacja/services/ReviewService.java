@@ -16,6 +16,7 @@ import pl.innowacja.model.enums.UserRole;
 import pl.innowacja.model.mapper.GenericMapper;
 import pl.innowacja.model.requests.AddReviewDto;
 import pl.innowacja.repositories.IdeaRepository;
+import pl.innowacja.repositories.JdbcRepository;
 import pl.innowacja.repositories.RatingSettingRepository;
 import pl.innowacja.repositories.ReviewRepository;
 
@@ -33,6 +34,7 @@ public class ReviewService {
   private final GenericMapper genericMapper;
   private final RatingSettingRepository ratingSettingRepository;
   private final IdeaRepository ideaRepository;
+  private final JdbcRepository jdbcRepository;
 
   public Integer saveReview(Integer ideaId, AddReviewDto addReviewDto) {
     if (reviewOfCurrentUserAlreadyExists(ideaId)) { // TODO this should be handled by composite primary keys
@@ -73,6 +75,22 @@ public class ReviewService {
 
   public List<ReviewDto> getReviewsOfCurrentUser() {
     return getReviewsByUserId(getCurrentUserId());
+  }
+
+  public void updateExistingRatingWeights(List<RatingSettingEntity> ratingSettingEntities) {
+    ratingSettingEntities
+        .forEach(this::updateAllReviewsWithGivenRoleForId);
+  }
+
+  private void updateAllReviewsWithGivenRoleForId(RatingSettingEntity ratingSettingEntity) {
+    var ideaId = ratingSettingEntity.getIdeaId();
+    reviewRepository.findAll().stream()
+        .filter(review -> ideaId.equals(review.getIdeaId()))
+        .filter(review -> jdbcRepository.getUserRole(review.getAuthorId()).equals(ratingSettingEntity.getUserRole()))
+        .forEach(review -> {
+          review.setWeight(ratingSettingEntity.getWeight());
+          reviewRepository.save(review);
+        });
   }
 
   public void updateReview(ReviewDto reviewDto) {
@@ -140,7 +158,7 @@ public class ReviewService {
     return UserRole.valueOf(userEntity.getUserRole());
   }
 
-  private void updateIdeaRating(Integer ideaId) {
+  public void updateIdeaRating(Integer ideaId) {
     var ideaRating = getIdeaRating(ideaId);
     var ideaEntity = ideaRepository.findById(ideaId)
         .orElseThrow(() -> new NoResourceFoundException("No idea with given id exists"));

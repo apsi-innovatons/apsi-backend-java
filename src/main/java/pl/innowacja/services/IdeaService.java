@@ -34,6 +34,7 @@ public class IdeaService {
   private final ReviewRepository reviewRepository;
   private final GenericMapper genericMapper;
   private final JdbcRepository jdbcRepository;
+  private final ReviewService reviewService;
 
   public List<IdeaDto> getAll() {
     var reviewSet = getCurrentUserReviewIds();
@@ -129,7 +130,8 @@ public class IdeaService {
         .map(ratingSettingDto -> genericMapper.map(ratingSettingDto, RatingSettingEntity.class))
         .collect(Collectors.toUnmodifiableList());
 
-    ratingSettingRepository.saveAll(newRatingSettingEntities);
+    reviewService.updateExistingRatingWeights(ratingSettingRepository.saveAll(newRatingSettingEntities));
+    reviewService.updateIdeaRating(ideaId);
   }
 
   public void deleteRatingSettingsByIdeaId(Integer ideaId) {
