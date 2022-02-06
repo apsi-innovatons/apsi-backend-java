@@ -100,7 +100,7 @@ public class VoteService {
     var currentUserId = SecurityContextUtil.getCurrentUserId();
     var currentUserVotes = voteRepository.findAll().stream()
         .filter(vote -> currentUserId.equals(vote.getCommitteeMemberId()))
-        .collect(Collectors.toMap(VoteEntity::getId, Function.identity()));
+        .collect(Collectors.toMap(VoteEntity::getIdeaId, Function.identity()));
 
     votes.forEach((ideaId, value) -> assertNotVotedYet(currentUserVotes, ideaId));
     votes.forEach((ideaId, value) -> assertIdeaExists(ideaIdsSet, ideaId));
