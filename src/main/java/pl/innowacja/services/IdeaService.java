@@ -35,18 +35,27 @@ public class IdeaService {
   private final GenericMapper genericMapper;
   private final JdbcRepository jdbcRepository;
   private final ReviewService reviewService;
+  private final VoteRepository voteRepository;
 
   public List<IdeaDto> getAll() {
     var reviewSet = getCurrentUserReviewIds();
     var costMap = getCostMap();
     var benefitsMap = getBenefitsMap();
     var attachmentIdsMap = getAttachmentIdIdeaIdMap();
+    var votesSet = getCurrentUserVotes();
 
     return ideaRepository.findAll().stream()
         .map(IdeaMapper::map)
-        .peek(idea -> setBenefitsCostsAndAlreadyReviewed(reviewSet, costMap, benefitsMap, idea, attachmentIdsMap))
+        .peek(idea -> setBenefitsCostsAndAlreadyReviewed(reviewSet, costMap, benefitsMap, idea, attachmentIdsMap, votesSet))
         .sorted(IdeaMapper::ideaDateComparator)
         .collect(Collectors.toList());
+  }
+
+  private Set<Integer> getCurrentUserVotes() {
+    return voteRepository.findAll().stream()
+        .filter(vote -> getCurrentUserId().equals(vote.getCommitteeMemberId()))
+        .map(VoteEntity::getIdeaId)
+        .collect(Collectors.toSet());
   }
 
   private Set<Integer> getCurrentUserReviewIds() {
@@ -308,7 +317,8 @@ public class IdeaService {
   private void setBenefitsCostsAndAlreadyReviewed(Set<Integer> reviewSet, Map<Integer,
                                                   List<CostDto>> costMap, Map<Integer,
                                                   List<BenefitDto>> benefitsMap, IdeaDto idea,
-                                                  Map<Integer, List<Integer>> attachmentIdsMap) {
+                                                  Map<Integer, List<Integer>> attachmentIdsMap,
+                                                  Set<Integer> votesSet) {
     if (costMap.containsKey(idea.getId())) {
       idea.setCosts(costMap.get(idea.getId()));
     }
@@ -328,6 +338,10 @@ public class IdeaService {
           .map(attachmentId -> serverUrl + "/attachments/" + attachmentId)
           .collect(Collectors.toUnmodifiableList());
       idea.setAttachmentUrls(attachmentUrls);
+    }
+
+    if (votesSet.contains(idea.getId())) {
+      idea.setAlreadyVoted(Boolean.TRUE);
     }
   }
 }

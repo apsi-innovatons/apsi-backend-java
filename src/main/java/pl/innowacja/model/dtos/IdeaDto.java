@@ -24,6 +24,7 @@ public class IdeaDto {
   private Integer authorId;
   private Integer subjectId;
   private Boolean alreadyReviewed;
+  private Boolean alreadyVoted;
   @NotNull
   private Boolean anonymous;
   @NotNull
