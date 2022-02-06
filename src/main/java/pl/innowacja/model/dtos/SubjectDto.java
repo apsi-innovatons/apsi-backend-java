@@ -14,6 +14,7 @@ public class SubjectDto {
   private Integer id;
   private String name;
   private Boolean done;
+  private Boolean alreadyVoted;
   private UserRole audience;
   private List<Integer> committeeMembers;
 }

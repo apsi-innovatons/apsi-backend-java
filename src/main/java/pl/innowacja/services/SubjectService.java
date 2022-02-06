@@ -12,11 +12,13 @@ import pl.innowacja.model.entities.SubjectEntity;
 import pl.innowacja.model.entities.SubjectUserEntity;
 import pl.innowacja.model.entities.SubjectUserEntityPK;
 import pl.innowacja.model.mapper.GenericMapper;
+import pl.innowacja.repositories.JdbcRepository;
 import pl.innowacja.repositories.SubjectRepository;
 import pl.innowacja.repositories.SubjectUserRepository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,6 +29,7 @@ public class SubjectService {
   private final GenericMapper genericMapper;
   private final SubjectRepository subjectRepository;
   private final SubjectUserRepository subjectUserRepository;
+  private final JdbcRepository jdbcRepository;
 
   public List<SubjectDto> getAll() {
     var subjectMap = subjectUserRepository.findAll().stream()
@@ -37,6 +40,7 @@ public class SubjectService {
     return subjectRepository.findAll().stream()
         .map(subjectEntity -> genericMapper.map(subjectEntity, SubjectDto.class))
         .peek(subjectDto -> setCommitteeMembers(subjectMap, subjectDto))
+        .peek(this::setAlreadyVoted)
         .collect(Collectors.toList());
   }
 
@@ -73,6 +77,7 @@ public class SubjectService {
 
     return subjectRepository.findAllById(subjectIds).stream()
         .map(subjectEntity -> genericMapper.map(subjectEntity, SubjectDto.class))
+        .peek(this::setAlreadyVoted)
         .collect(Collectors.toUnmodifiableList());
   }
 
@@ -81,6 +86,11 @@ public class SubjectService {
       subjectDto.setCommitteeMembers(subjectMap.get(subjectDto.getId()));
     }
   }
+
+  private void setAlreadyVoted(SubjectDto subjectDto) {
+    subjectDto.setAlreadyVoted(jdbcRepository.alreadyVotedInGivenSubject(subjectDto.getId()));
+  }
+
 
   private Integer getCurrentUserId() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
